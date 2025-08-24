@@ -1,19 +1,18 @@
-# Image de base
+#On part d’un système Debian 12 minimal comme fondation
 FROM debian:12
 
-# Installation de Python 3 et pip
-RUN apt-get update
-RUN apt-get install -y python3 python3-pip
-
-# Copie de l’application dans le conteneur
+#repertoire de travail
 WORKDIR /app
-COPY app/ /app/
 
-# Installation des dépendances Python
-RUN pip3 install --break-system-packages -r requirements.txt
+#on copie le contenu de /app dans notre repertoire de travail /app
+COPY /app /app
 
-# Exposition du port de l’API
-EXPOSE 8000
+#installer les dependances 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 python3-pip && \
+    #et nottoyer le cache apt après l'installatin des paquets
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    #on install les dependances
+    pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
-# Commande de démarrage de l’API
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
